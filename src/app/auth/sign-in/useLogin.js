@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as yup from "yup";
+import axios from 'axios';
 
 const useLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -21,20 +22,19 @@ const useLogin = () => {
 
   const { control, handleSubmit } = useForm({
     resolver: yupResolver(loginFormSchema),
-    defaultValues: {
-      email: "user@coderthemes.com",
-      password: "password",
-    },
+    // defaultValues: {
+    //   email: "user@coderthemes.com",
+    //   password: "password",
+    // },
   });
-
   const login = handleSubmit(async (values) => {
     setLoading(true);
-    signIn("credentials", {
+    const response = await axios.post(`https://golang.qspiders.com/api/student/web-login`, {
       redirect: false,
       email: values?.email,
       password: values?.password,
-    }).then((res) => {
-      if (res?.ok) {
+    });
+      if (response.status === 200) {
         router.push("/admin/dashboard");
         toast.success("Successfully logged in. Redirecting....", {
           position: "top-right",
@@ -43,9 +43,28 @@ const useLogin = () => {
       } else {
         toast.error(res?.error, { position: "top-right", duration: 2000 });
       }
-    });
+    
     setLoading(false);
   });
+  // const login = handleSubmit(async (values) => {
+  //   setLoading(true);
+  //   signIn("credentials", {
+  //     redirect: false,
+  //     email: values?.email,
+  //     password: values?.password,
+  //   }).then((res) => {
+  //     if (res?.ok) {
+  //       router.push("/admin/dashboard");
+  //       toast.success("Successfully logged in. Redirecting....", {
+  //         position: "top-right",
+  //         duration: 2000,
+  //       });
+  //     } else {
+  //       toast.error(res?.error, { position: "top-right", duration: 2000 });
+  //     }
+  //   });
+  //   setLoading(false);
+  // });
 
   return { loading, login, control };
 };
